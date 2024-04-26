@@ -26,7 +26,7 @@ To make this application production ready, at least the following would need to 
 
 - Production storage
 
-    Storage should be moved to a production grade database eg. BigTable, etc.
+    Storage should be moved to a production grade database eg. Cloud SQL, etc.
     
 - True backend
 
