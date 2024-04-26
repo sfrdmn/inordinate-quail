@@ -1,36 +1,64 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+## Question 1
 
-## Getting Started
+To run:
 
-First, run the development server:
+1. Ensure NodeJS is installed
+2. `npm i`
+3. `npm run dev`
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+Open [http://localhost:3000](http://localhost:3000)
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app)
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+The database is persisted locally at `db/`
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+## Question 2
 
-## Learn More
+To make this application production ready, at least the following would need to be done:
 
-To learn more about Next.js, take a look at the following resources:
+- Clarify requirements
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+    There is some ambiguity in the prompt, eg. the desired behavior for editing temperatures.
+  
+- Data modeling review
+ 
+    The data model should be revisited with respect to requirements and robustness.  Some possible changes are using a history-preserving mutation log, normalizing datetime representations including timezone, etc.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+- Production storage
 
-## Deploy on Vercel
+    Storage should be moved to a production grade database eg. BigTable, etc.
+    
+- True backend
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+    Likely, a true backend API service should be implemented instead of implementing it on the frontend server.
+    
+- Authentication and authorization
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+- Security review
+
+- Monitoring
+
+- Deployment / rollback strategy
+ 
+- Production frontend
+
+    Design and component implementation and / or integration of an existing design system.
+    
+- Pagination
+
+    Depending on scale, data pagination could be required.
+    
+- Improve UX
+    - Loading state
+    - Error handling
+    - Outlier handling
+
+## Question 3
+
+The problem of integrating realtime data from distributed devices is generally related to horizontally scaled ingestion into some kind of event stream, processing / persistence of event data, and consumption of the data by applications. Depending on latency requirements, intermediate steps between the data sources and ultimate consumers could potentially be removed. Here I'll give a solution which strikes a balance between robustness and latency.
+
+We assume a solution needing arbitrary horizontal scalability. GCP infrastructure descriptions should be taken with a grain of salt, because I haven't used GCP in a few years.
+
+![](architecture.png)
+
+The edge gateway can be implemented via a GKE cluster, the message queue via PubSub, the message processing via Dataflow, the database via Firestore or Cloud SQL, and the WebSocket / SSE dispatch again via a GKE cluster. The inclusion of the database change capture may be unnecessary. Another PubSub intermediary may also be needed somewhere between Dataflow and the event dispatch.
