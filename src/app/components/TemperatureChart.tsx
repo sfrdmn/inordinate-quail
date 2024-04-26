@@ -62,7 +62,7 @@ export default function TemperatureChart({
     }
 
     return () => chart.remove()
-  }, [data, xDomain])
+  }, [data, height, xDomain])
 
   return (
     <div>
